@@ -1,0 +1,70 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String    @unique
+  password String
+  role     Role      @default(CLIENT)
+  services Service[]
+  bookings Booking[] @relation("ClientBookings")
+  Booking  Booking[]
+}
+
+enum Role {
+  CLIENT
+  PROVIDER
+}
+
+model ServiceType {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  services Service[]
+}
+
+model Service {
+  id            Int         @id @default(autoincrement())
+  name          String
+  description   String
+  photos        String[]
+  providerId    Int
+  provider      User        @relation(fields: [providerId], references: [id])
+  serviceTypeId Int
+  serviceType   ServiceType @relation(fields: [serviceTypeId], references: [id])
+  variations    Variation[]
+}
+
+model Variation {
+  id        Int       @id @default(autoincrement())
+  name      String
+  price     Float
+  duration  Int
+  serviceId Int
+  service   Service   @relation(fields: [serviceId], references: [id])
+  Booking   Booking[]
+}
+
+model Booking {
+  id          Int           @id @default(autoincrement())
+  clientId    Int
+  client      User          @relation("ClientBookings", fields: [clientId], references: [id])
+  variationId Int
+  variation   Variation     @relation(fields: [variationId], references: [id])
+  date        DateTime
+  status      BookingStatus @default(PENDING)
+  User        User?         @relation(fields: [userId], references: [id])
+  userId      Int?
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+}
