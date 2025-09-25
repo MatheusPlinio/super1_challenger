@@ -52,7 +52,7 @@ export class AuthController {
             if (!valid) return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Credenciais inválidas" });
 
             const token = jwt.sign(
-                { id: user.id, email: user.email },
+                { id: user.id },
                 process.env.JWT_SECRET || "secret",
                 { expiresIn: "1d" }
             );
