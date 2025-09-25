@@ -1,65 +1,80 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { IUserRepository } from "../repositories/contracts/UserInterfaceRepository";
 import { StatusCodes } from "http-status-codes";
-
-const prisma = new PrismaClient();
 
 export class UserController {
     constructor(private repo: IUserRepository) { }
 
-    async create(req: Request, res: Response) {
+    async index(req: Request, res: Response) {
         try {
-            const { name, email, password } = req.body;
+            const result = await this.repo.paginateFromReq?.(req)?.findAll?.();
 
-            const userExist = await this.repo.findUserByEmail(email);
-
-            if (userExist) {
-                return res.status(StatusCodes.CONFLICT).json({ error: "Usuário já existe" });
+            if (result && 'data' in result) {
+                return res.json({
+                    data: result.data,
+                    meta: {
+                        total: result.total,
+                        page: result.page,
+                        limit: result.limit,
+                        lastPage: result.lastPage,
+                    },
+                });
             }
 
-            const user = await this.repo.createUser({
-                name,
-                email,
-                password: await bcrypt.hash(password, 10)
-            });
-
-            if (!user) {
-                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Erro ao criar usuário" })
-            }
-
-            res.status(StatusCodes.CREATED).json({
-                id: user.id,
-                name: user.name,
-                email: user.email
-            });
-
+            return res.json({ data: result })
         } catch (err: any) {
-            res.status(500).json({ error: err.message });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message || "Internal Server Error" });
         }
     }
 
-    async login(req: Request, res: Response) {
+    async show(req: Request, res: Response) {
         try {
-            const { email, password } = req.body;
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) {
+                return res.status(StatusCodes.BAD_REQUEST).json({ error: "ID inválido" });
+            }
 
-            const user = await prisma.user.findUnique({ where: { email } });
-            if (!user) return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Credenciais inválidas" });
+            const user = await this.repo.findById(id);
 
-            const valid = await bcrypt.compare(password, user.password);
-            if (!valid) return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Credenciais inválidas" });
+            if (!user) {
+                return res.status(StatusCodes.NOT_FOUND).json({ error: "Usuário não encontrado" });
+            }
 
-            const token = jwt.sign(
-                { id: user.id, email: user.email },
-                process.env.JWT_SECRET || "secret",
-                { expiresIn: "1d" }
-            );
-
-            res.json({ token });
+            return res.json({ data: user });
         } catch (err: any) {
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message || "Internal Server Error" });
+        }
+    }
+
+    async update(req: Request, res: Response) {
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) return res.status(StatusCodes.BAD_REQUEST).json({ error: "ID inválido" });
+
+            const existingUser = await this.repo.findById(id);
+            if (!existingUser) return res.status(StatusCodes.NOT_FOUND).json({ error: "Usuário não encontrado" });
+
+            const updatedUser = await this.repo.updateUser(id, req.body);
+
+            return res.json({ data: updatedUser });
+        } catch (err: any) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message || "Internal Server Error" });
+        }
+    }
+
+    async destroy(req: Request, res: Response) {
+        try {
+            const id = parseInt(req.params.id);
+            if (isNaN(id)) return res.status(StatusCodes.BAD_REQUEST).json({ error: "ID inválido" });
+
+            const existingUser = await this.repo.findById(id);
+            if (!existingUser) return res.status(StatusCodes.NOT_FOUND).json({ error: "Usuário não encontrado" });
+
+            await this.repo.deleteUser(id);
+
+            return res.status(StatusCodes.NO_CONTENT).send();
+        } catch (err: any) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message || "Internal Server Error" });
         }
     }
 }
