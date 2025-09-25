@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
+import { AuthRequest } from "../types/AuthRequest";
 
 const prisma = new PrismaClient();
 
@@ -10,7 +11,7 @@ interface JwtPayload {
 }
 
 export async function authMiddleware(
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
 ) {
