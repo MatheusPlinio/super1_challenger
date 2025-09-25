@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import bodyParser from "body-parser";
-import authRoutes from "./routes/authRoutes";
+import routes from "./routes";
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use(bodyParser.json());
-app.use('/api/auth', authRoutes);
+app.use('/api/', routes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err);

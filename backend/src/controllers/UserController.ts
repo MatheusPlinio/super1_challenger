@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IUserRepository } from "../repositories/contracts/UserInterfaceRepository";
+import { IUserRepository } from "../repositories/contracts/IUserRepository";
 import { StatusCodes } from "http-status-codes";
 
 export class UserController {

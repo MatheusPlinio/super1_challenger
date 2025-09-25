@@ -1,1 +1,1 @@
-export * as UserRepository from './contracts/UserInterfaceRepository';
+export * as IUserRepository from './contracts/IUserRepository';
