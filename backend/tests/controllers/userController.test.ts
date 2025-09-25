@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { IUserRepository } from "../../src/repositories/contracts/UserInterfaceRepository";
+import { IUserRepository } from "../../src/repositories/contracts/IUserRepository";
 import { UserController } from "../../src/controllers/UserController";
 import { Role, User } from "@prisma/client";
 

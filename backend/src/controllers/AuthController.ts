@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { IUserRepository } from "../repositories/contracts/UserInterfaceRepository";
+import { IUserRepository } from "../repositories/contracts/IUserRepository";
 import { StatusCodes } from "http-status-codes";
 
 const prisma = new PrismaClient();

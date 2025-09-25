@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, User } from "@prisma/client";
-import { IUserRepository } from "../contracts/UserInterfaceRepository";
+import { IUserRepository } from "../contracts/IUserRepository";
 import { BaseRepository } from "../BaseRepository";
 
 const prisma = new PrismaClient();
