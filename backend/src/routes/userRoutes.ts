@@ -1,21 +1,15 @@
-import { Router } from "express";
-import { UserController } from "../controllers/UserController";
-import { validate } from "../middlewares/validate";
-import { createUserSchema, loginUserSchema } from "../validations/userValidation";
+import express from 'express';
+import { validateData } from '../middleware/validationMiddleware';
+import { userRegistrationSchema, userLoginSchema } from '../schemas/userSchemas';
+import { UserController } from '../controllers/UserController';
+import { PrismaUserRepository } from '../repositories/prisma/PrismaUserRepository';
 
-const router = Router();
-const controller = new UserController();
+const userRouter = express.Router();
+const userRepo = new PrismaUserRepository();
 
-router.post(
-    "/",
-    validate(createUserSchema),
-    controller.create.bind(controller)
-);
+const userController = new UserController(userRepo);
 
-router.post(
-    "/login",
-    validate(loginUserSchema),
-    controller.login.bind(controller)
-);
+userRouter.post('/', validateData(userRegistrationSchema), userController.create.bind(userController));
+userRouter.post('/login', validateData(userLoginSchema), userController.login.bind(userController));
 
-export default router;
+export default userRouter;

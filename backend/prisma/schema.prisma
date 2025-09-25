@@ -8,14 +8,16 @@ generator client {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  name     String
-  email    String    @unique
-  password String
-  role     Role      @default(CLIENT)
-  services Service[]
-  bookings Booking[] @relation("ClientBookings")
-  Booking  Booking[]
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(CLIENT)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  services  Service[]
+  bookings  Booking[] @relation("ClientBookings")
+  Booking   Booking[]
 }
 
 enum Role {

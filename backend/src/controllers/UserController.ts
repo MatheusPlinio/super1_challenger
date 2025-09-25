@@ -2,30 +2,40 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { IUserRepository } from "../repositories/contracts/UserInterfaceRepository";
+import { StatusCodes } from "http-status-codes";
 
 const prisma = new PrismaClient();
 
 export class UserController {
+    constructor(private repo: IUserRepository) { }
+
     async create(req: Request, res: Response) {
         try {
             const { name, email, password } = req.body;
 
-            const existingUser = await prisma.user.findUnique({ where: { email } });
-            if (existingUser) {
-                return res.status(400).json({ error: "Usuário já cadastrado" });
+            const userExist = await this.repo.findUserByEmail(email);
+
+            if (userExist) {
+                return res.status(StatusCodes.CONFLICT).json({ error: "Usuário já existe" });
             }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            const user = await prisma.user.create({
-                data: { name, email, password: hashedPassword },
+            const user = await this.repo.createUser({
+                name,
+                email,
+                password: await bcrypt.hash(password, 10)
             });
 
-            res.status(201).json({
+            if (!user) {
+                res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Erro ao criar usuário" })
+            }
+
+            res.status(StatusCodes.CREATED).json({
                 id: user.id,
                 name: user.name,
-                email: user.email,
+                email: user.email
             });
+
         } catch (err: any) {
             res.status(500).json({ error: err.message });
         }
@@ -36,10 +46,10 @@ export class UserController {
             const { email, password } = req.body;
 
             const user = await prisma.user.findUnique({ where: { email } });
-            if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
+            if (!user) return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Credenciais inválidas" });
 
             const valid = await bcrypt.compare(password, user.password);
-            if (!valid) return res.status(400).json({ error: "Senha inválida" });
+            if (!valid) return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Credenciais inválidas" });
 
             const token = jwt.sign(
                 { id: user.id, email: user.email },
@@ -49,7 +59,7 @@ export class UserController {
 
             res.json({ token });
         } catch (err: any) {
-            res.status(500).json({ error: err.message });
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
         }
     }
 }

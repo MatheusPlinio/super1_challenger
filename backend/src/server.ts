@@ -1,7 +1,8 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
-import userRoutes from "../src/routes/userRoutes";
+import bodyParser from "body-parser";
+import userRouter from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -15,7 +16,8 @@ app.get("/", (req: Request, res: Response) => {
     res.send("API do Mini Marketplace está rodando!");
 });
 
-app.use("/api/users", userRoutes);
+app.use(bodyParser.json());
+app.use('/api/users', userRouter);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     console.error(err);
