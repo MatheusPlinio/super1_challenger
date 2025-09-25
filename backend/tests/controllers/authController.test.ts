@@ -2,17 +2,17 @@ import request from "supertest";
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import userRoutes from "../../src/routes/userRoutes";
+import authRoutes from "../../src/routes/authRoutes";
 
 const prisma = new PrismaClient();
 const app = express();
 app.use(express.json());
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 
-describe("UserController", () => {
-    it("POST /api/users - deve criar um novo usuário", async () => {
+describe("AuthController", () => {
+    it("POST /api/auth - deve criar um novo usuário", async () => {
         const response = await request(app)
-            .post("/api/users/")
+            .post("/api/auth/")
             .send({
                 name: "Matheus",
                 email: "matheus@example.com",
@@ -24,7 +24,7 @@ describe("UserController", () => {
         expect(response.body.email).toBe("matheus@example.com");
     });
 
-    it("POST /api/users/login - deve logar um usuário existente", async () => {
+    it("POST /api/auth/login - deve logar um usuário existente", async () => {
         const hashedPassword = await bcrypt.hash("12345678", 10);
 
         await prisma.user.create({
@@ -32,7 +32,7 @@ describe("UserController", () => {
         });
 
         const response = await request(app)
-            .post("/api/users/login")
+            .post("/api/auth/login")
             .send({
                 email: "login@example.com",
                 password: "12345678",
@@ -43,10 +43,10 @@ describe("UserController", () => {
     });
 });
 
-describe("UserController - Erros", () => {
-    it("POST /api/users - deve falhar se o email for inválido", async () => {
+describe("AuthController - Erros", () => {
+    it("POST /api/auth - deve falhar se o email for inválido", async () => {
         const response = await request(app)
-            .post("/api/users")
+            .post("/api/auth")
             .send({
                 name: "User",
                 email: "email-invalido",
@@ -57,9 +57,9 @@ describe("UserController - Erros", () => {
         expect(response.body).toHaveProperty("error");
     });
 
-    it("POST /api/users - deve falhar se a senha for muito curta", async () => {
+    it("POST /api/auth - deve falhar se a senha for muito curta", async () => {
         const response = await request(app)
-            .post("/api/users")
+            .post("/api/auth")
             .send({
                 name: "User",
                 email: "shortpass@example.com",
@@ -70,13 +70,13 @@ describe("UserController - Erros", () => {
         expect(response.body.details[0].message).toContain(">=8 characters");
     });
 
-    it("POST /api/users - deve falhar se o email já existir", async () => {
+    it("POST /api/auth - deve falhar se o email já existir", async () => {
         await prisma.user.create({
             data: { name: "Duplicado", email: "dup@example.com", password: "hashedpass" },
         });
 
         const response = await request(app)
-            .post("/api/users")
+            .post("/api/auth")
             .send({
                 name: "Outro",
                 email: "dup@example.com",
@@ -87,9 +87,9 @@ describe("UserController - Erros", () => {
         expect(response.body.error).toContain("Usuário já existe");
     });
 
-    it("POST /api/users/login - deve falhar com email não encontrado", async () => {
+    it("POST /api/auth/login - deve falhar com email não encontrado", async () => {
         const response = await request(app)
-            .post("/api/users/login")
+            .post("/api/auth/login")
             .send({
                 email: "naoexiste@example.com",
                 password: "12345678",
@@ -99,7 +99,7 @@ describe("UserController - Erros", () => {
         expect(response.body.error).toBe("Credenciais inválidas");
     });
 
-    it("POST /api/users/login - deve falhar com senha incorreta", async () => {
+    it("POST /api/auth/login - deve falhar com senha incorreta", async () => {
         const hashedPassword = await bcrypt.hash("senhaCorreta123", 10);
 
         await prisma.user.create({
@@ -107,7 +107,7 @@ describe("UserController - Erros", () => {
         });
 
         const response = await request(app)
-            .post("/api/users/login")
+            .post("/api/auth/login")
             .send({
                 email: "loginerror@example.com",
                 password: "senhaErrada",

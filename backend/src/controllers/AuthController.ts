@@ -7,7 +7,7 @@ import { StatusCodes } from "http-status-codes";
 
 const prisma = new PrismaClient();
 
-export class UserController {
+export class AuthController {
     constructor(private repo: IUserRepository) { }
 
     async create(req: Request, res: Response) {
