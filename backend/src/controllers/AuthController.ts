@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { IUserRepository } from "../repositories/contracts/IUserRepository";
 import { StatusCodes } from "http-status-codes";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prismaClient";
 
 export class AuthController {
     constructor(private repo: IUserRepository) { }

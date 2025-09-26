@@ -7,16 +7,16 @@ import { createServiceTypeInput, updateServiceTypeInput } from '../schemas/servi
 import { adminMiddleware } from '../middleware/adminMiddleware';
 import { authMiddleware } from '../middleware/authMiddleware';
 
-const authRoutes = express.Router();
+const serviceTypeRoutes = express.Router();
 const serviceTypeRepo = new PrismaServiceTypeRepository();
 
 const serviceTypeController = new ServiceTypeController(serviceTypeRepo);
 
-authRoutes.use(authMiddleware, adminMiddleware)
+serviceTypeRoutes.use(authMiddleware, adminMiddleware, function () {
+    serviceTypeRoutes.post('/store', validateData(createServiceTypeInput), serviceTypeController.store.bind(serviceTypeController));
+    serviceTypeRoutes.post('/show/:id', serviceTypeController.show.bind(serviceTypeController));
+    serviceTypeRoutes.post('/update/:id', validateData(updateServiceTypeInput), serviceTypeController.update.bind(serviceTypeController));
+    serviceTypeRoutes.post('/destroy/:id', serviceTypeController.destroy.bind(serviceTypeController));
+})
 
-authRoutes.post('/store', validateData(createServiceTypeInput), serviceTypeController.store.bind(serviceTypeController));
-authRoutes.post('/show/:id', serviceTypeController.show.bind(serviceTypeController));
-authRoutes.post('/update/:id', validateData(updateServiceTypeInput), serviceTypeController.update.bind(serviceTypeController));
-authRoutes.post('/destroy/:id', serviceTypeController.destroy.bind(serviceTypeController));
-
-export default authRoutes;
+export default serviceTypeRoutes;
