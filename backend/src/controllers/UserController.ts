@@ -21,7 +21,7 @@ export class UserController {
                 });
             }
 
-            return res.json({ data: result })
+            return res.status(StatusCodes.OK).json({ data: result })
         } catch (err: any) {
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message || "Internal Server Error" });
         }

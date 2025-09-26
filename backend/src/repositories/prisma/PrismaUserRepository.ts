@@ -1,8 +1,7 @@
 import { Prisma, PrismaClient, User } from "@prisma/client";
 import { IUserRepository } from "../contracts/IUserRepository";
 import { BaseRepository } from "../BaseRepository";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../lib/prismaClient";
 
 export class PrismaUserRepository extends BaseRepository<User> implements IUserRepository {
     constructor() {

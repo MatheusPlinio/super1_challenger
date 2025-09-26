@@ -1,8 +1,7 @@
-import { Prisma, PrismaClient, ServiceType } from "@prisma/client";
+import { Prisma, ServiceType } from "@prisma/client";
 import { IServiceTypeRepository } from "../contracts/IServiceTypeRepository";
 import { BaseRepository } from "../BaseRepository";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../lib/prismaClient";
 
 export class PrismaServiceTypeRepository extends BaseRepository<ServiceType> implements IServiceTypeRepository {
     constructor() {
