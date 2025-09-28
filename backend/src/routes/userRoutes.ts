@@ -12,9 +12,9 @@ const userController = new UserController(userRepo);
 
 userRoutes.use(authMiddleware, adminMiddleware);
 
-userRoutes.get("/users", userController.index.bind(userController));
-userRoutes.get("/users/:id", userController.show.bind(userController));
-userRoutes.put("/users/:id", validateData(UserUpdateInput), userController.update.bind(userController));
-userRoutes.delete("/users/:id", userController.destroy.bind(userController));
+userRoutes.get("/", userController.index.bind(userController));
+userRoutes.get("/show/:id", userController.show.bind(userController));
+userRoutes.put("/update/:id", validateData(UserUpdateInput), userController.update.bind(userController));
+userRoutes.delete("/destroy/:id", userController.destroy.bind(userController));
 
 export default userRoutes;
