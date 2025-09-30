@@ -55,7 +55,15 @@ export class AuthController {
                 { expiresIn: "1d" }
             );
 
-            res.json({ token });
+            res.cookie('auth_token', token, {
+                httpOnly: true,
+                path: '/',
+                maxAge: 1000 * 60 * 60 * 24,
+                secure: false,
+                sameSite: 'lax'
+            });
+
+            res.json({ message: 'Login realizado com sucesso' });
         } catch (err: any) {
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
         }

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { loginUser } from '$lib/services/requests/auth';
 
 	let email = '';
 	let password = '';
@@ -9,17 +10,7 @@
 		error = '';
 
 		try {
-			const res = await fetch('/api/auth/login', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email, password })
-			});
-
-			if (!res.ok) {
-				throw new Error('Invalid credentials');
-			}
-
-			const data = await res.json();
+			await loginUser(email, password);
 			goto('/');
 		} catch (err: any) {
 			error = err.message;

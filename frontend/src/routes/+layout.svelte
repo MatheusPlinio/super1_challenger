@@ -1,7 +1,7 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
 
-	let { children } = $props();
+	let { children, user } = $props<{ children: unknown; user: { name: string } | null }>();
 	import '../app.css';
 </script>
 
@@ -15,7 +15,11 @@
 		<nav class="flex gap-4">
 			<a href="/products" class="hover:underline">Products</a>
 			<a href="/cart" class="hover:underline">Cart</a>
-			<a href="/auth/login" class="hover:underline">Login</a>
+			{#if user}
+				<a href="/logout">Logout</a>
+			{:else}
+				<a href="/auth/login" class="hover:underline">Login</a>
+			{/if}
 		</nav>
 	</header>
 

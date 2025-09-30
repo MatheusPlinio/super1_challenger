@@ -3,11 +3,17 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import bodyParser from "body-parser";
 import routes from "./routes";
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
+
+app.use(cors({
+    origin: 'http://172.19.0.2:5173',
+    credentials: true
+}))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
