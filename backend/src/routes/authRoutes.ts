@@ -11,5 +11,6 @@ const authController = new AuthController(userRepo);
 
 authRoutes.post('/register', validateData(userRegistrationSchema), authController.create.bind(authController));
 authRoutes.post('/login', validateData(userLoginSchema), authController.login.bind(authController));
+authRoutes.get('/me', authController.login.bind(authController));
 
 export default authRoutes;
