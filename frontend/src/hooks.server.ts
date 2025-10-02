@@ -1,10 +1,18 @@
+import { JWT_SECRET } from '$env/static/private';
 import { redirect, type Handle } from '@sveltejs/kit';
+import jwt from 'jsonwebtoken';
 
 export const handle: Handle = async ({ event, resolve }) => {
     const token = event.cookies.get('auth_token');
 
     if (token) {
-        event.locals.user = { id: 1, name: 'Matheus', email: 'test@test.com' };
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET) as { id: number; in: string; email: string };
+            event.locals.authToken = token;
+        } catch (err) {
+            event.locals.user = null;
+            event.cookies.delete('auth_token', { path: '/' });
+        }
     } else {
         event.locals.user = null;
     }

@@ -4,6 +4,7 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
+			authToken: string | null;
 			user: {
 				id: number;
 				name: string;

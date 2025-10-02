@@ -1,0 +1,11 @@
+import { redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from '../register/$types';
+
+export const load: PageServerLoad = async ({ locals }) => {
+
+	if (locals.authToken) {
+		throw redirect(303, '/');
+	}
+
+	return {};
+};

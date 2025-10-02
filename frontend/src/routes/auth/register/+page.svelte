@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { registerUser } from '$lib/services/requests/auth';
 
 	let name = '';
 	let email = '';
@@ -10,17 +11,7 @@
 		error = '';
 
 		try {
-			const res = await fetch('/api/auth/register', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ name, email, password })
-			});
-
-			if (!res.ok) {
-				throw new Error('Failed to register');
-			}
-
-			const data = await res.json();
+			await registerUser(name, email, password);
 			goto('/auth/login');
 		} catch (err: any) {
 			error = err.message;
