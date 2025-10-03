@@ -1,4 +1,4 @@
-import { Cart, CartItem, Service } from '@prisma/client';
+import { Cart, CartItem } from '@prisma/client';
 import { IBaseRepository } from '../IBaseRepository';
 
 export interface ICartRepository extends IBaseRepository<Cart> {
