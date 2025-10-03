@@ -7,7 +7,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     if (token) {
         try {
-            const decoded = jwt.verify(token, JWT_SECRET) as { id: number; in: string; email: string };
+            const decoded = jwt.verify(token, JWT_SECRET) as { id: number; email: string, name: string };
+            event.locals.user = decoded;
             event.locals.authToken = token;
         } catch (err) {
             event.locals.user = null;
