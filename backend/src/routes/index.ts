@@ -5,6 +5,7 @@ import authRoutes from "./authRoutes";
 import serviceRoutes from "./serviceRoutes";
 import variationRoutes from "./variationRoutes";
 import cartRoutes from "./cartRoutes";
+import productRoutes from "./productRoutes";
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use("/service-types", serviceTypeRoutes);
 router.use("/service", serviceRoutes);
 router.use("/variation", variationRoutes)
 router.use("/cart", cartRoutes)
+router.use("/product", productRoutes)
 
 export default router;

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
+	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
 	interface CartItem {
@@ -13,10 +15,15 @@
 	let loading = true;
 
 	async function fetchCart() {
+		const token = get(page).data?.authToken;
+
 		try {
-			const res = await fetch('http://localhost:3000/api/cart', { credentials: 'include' });
+			const res = await fetch('http://localhost:3000/api/cart', {
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+			});
 			const json = await res.json();
-			cart = json.data ?? [];
+
+			cart = json.data?.items ?? [];
 		} catch (err) {
 			console.error('Failed to load cart', err);
 			cart = [];
@@ -30,10 +37,11 @@
 	$: total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
 	async function removeItem(id: number) {
+		const token = get(page).data?.authToken;
 		try {
 			await fetch(`http://localhost:3000/api/cart/remove/${id}`, {
 				method: 'DELETE',
-				credentials: 'include'
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
 			});
 			cart = cart.filter((item) => item.id !== id);
 		} catch (err) {
@@ -42,30 +50,24 @@
 	}
 
 	async function updateQuantity(id: number, quantity: number) {
+		const token = get(page).data?.authToken;
 		try {
-			const res = await fetch(`http://localhost:3000/api/cart/update/${id}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				credentials: 'include',
+			const res = await fetch(`http://localhost:3000/api/cart/items/${id}`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
 				body: JSON.stringify({ quantity })
 			});
 			const json = await res.json();
-			cart = cart.map((item) => (item.id === id ? json.data : item));
-		} catch (err) {
-			console.error(err);
-		}
-	}
-
-	async function addItem(variationId: number) {
-		try {
-			const res = await fetch('http://localhost:3000/api/cart/add', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				credentials: 'include',
-				body: JSON.stringify({ variationId, quantity: 1 })
-			});
-			const json = await res.json();
-			await fetchCart();
+			cart = cart.map((item) =>
+				item.id === id
+					? {
+							...item,
+							name: json.data.variation.name,
+							price: json.data.variation.price,
+							quantity: json.data.quantity
+						}
+					: item
+			);
 		} catch (err) {
 			console.error(err);
 		}

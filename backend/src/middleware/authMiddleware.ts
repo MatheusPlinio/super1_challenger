@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
@@ -7,7 +7,9 @@ import { AuthRequest } from "../types/AuthRequest";
 const prisma = new PrismaClient();
 
 interface JwtPayload {
-    userId: number;
+    id: number;
+    email?: string;
+    name?: string;
 }
 
 export async function authMiddleware(
@@ -15,22 +17,19 @@ export async function authMiddleware(
     res: Response,
     next: NextFunction
 ) {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Token missing" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
     try {
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET || "secret"
-        ) as JwtPayload;
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Token missing" });
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as JwtPayload;
 
         const user = await prisma.user.findUnique({
-            where: { id: decoded.userId },
+            where: { id: decoded.id },
         });
 
         if (!user) {
@@ -38,8 +37,10 @@ export async function authMiddleware(
         }
 
         req.user = user;
-        next();
+
+        return next();
     } catch (err) {
+        console.error("Auth error:", err);
         return res.status(StatusCodes.UNAUTHORIZED).json({ error: "Invalid token" });
     }
 }
