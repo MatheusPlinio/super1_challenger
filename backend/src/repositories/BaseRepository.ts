@@ -40,7 +40,7 @@ export class BaseRepository<T> {
         return this;
     }
 
-    public async findAll(extraArgs = {}) {
+    public async findAll(extraArgs: any = {}) {
         if (!this._usePagination) {
             return this.model.findMany(extraArgs);
         }
@@ -51,8 +51,15 @@ export class BaseRepository<T> {
             ...extraArgs,
         });
 
-        const total = await this.model.count(extraArgs);
+        const { where } = extraArgs;
+        const total = await this.model.count({ where });
 
-        return { data, total, page: this._page, limit: this._limit, lastPage: Math.ceil(total / this._limit) };
+        return {
+            data,
+            total,
+            page: this._page,
+            limit: this._limit,
+            lastPage: Math.ceil(total / this._limit),
+        };
     }
 }

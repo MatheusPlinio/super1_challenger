@@ -8,7 +8,6 @@
 	<a href="/" class="text-xl font-bold">MiniMarket</a>
     
 	<nav class="flex gap-4">
-		<a href="/products" class="hover:underline">Products</a>
 		<a href="/cart" class="hover:underline">Cart</a>
 
 		{#if authToken}

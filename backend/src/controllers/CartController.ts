@@ -7,24 +7,17 @@ export class CartController {
 
     constructor(private repo: ICartRepository) { }
 
-    async index(req: Request, res: Response) {
+    async index(req: AuthRequest, res: Response) {
         try {
-            const result = await this.repo.paginateFromReq?.(req)?.findAll?.();
+            const result = await this.repo.getCart(req.user?.id ?? 0)
 
             if (result && 'data' in result) {
-                return res.json({
-                    data: result.data,
-                    meta: {
-                        total: result.total,
-                        page: result.page,
-                        limit: result.limit,
-                        lastPage: result.lastPage,
-                    },
-                });
+                return res.status(StatusCodes.OK).json({ data: result.data })
             }
 
             return res.status(StatusCodes.OK).json({ data: result })
         } catch (err) {
+            console.error("List services error:", err);
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to list services" });
         }
     }
@@ -36,6 +29,7 @@ export class CartController {
             const item = await this.repo.addItem(userId, variationId, quantity);
             return res.status(StatusCodes.CREATED).json({ data: item });
         } catch (err) {
+            console.error("Add item error:", err);
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to add item" });
         }
     }

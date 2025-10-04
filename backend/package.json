@@ -11,11 +11,15 @@
     "test": "dotenv -e .env.test -- jest --runInBand",
     "test:watch": "jest --watch"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@faker-js/faker": "^10.0.0",
     "@prisma/client": "^6.16.2",
     "@types/cors": "^2.8.19",
     "bcrypt": "^6.0.0",
